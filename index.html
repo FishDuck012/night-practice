@@ -2,11 +2,10 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<h1>TEST 123</h1>
+<title>thatskypiano</title>
+
 <style>
-<script>
-alert("JS 有在跑");
-</script>
+
 body{
 margin:0;
 background:#0b1d35;
@@ -45,6 +44,7 @@ border:none;
 background:rgba(255,255,255,0.15);
 color:white;
 font-size:16px;
+cursor:pointer;
 }
 
 #grid{
@@ -52,6 +52,7 @@ position:absolute;
 top:0;
 left:0;
 width:100%;
+transition:transform 0.2s;
 }
 
 .row{
@@ -81,6 +82,7 @@ display:none;
 
 </style>
 </head>
+
 <body>
 
 <div id="home">
@@ -104,6 +106,9 @@ let scrollY=0;
 function generate(){
 const grid=document.getElementById("grid");
 grid.innerHTML="";
+scrollY=0;
+grid.style.transform="translateY(0px)";
+
 const lines=document.getElementById("input").value.trim().split("\n");
 
 lines.forEach(line=>{
@@ -138,7 +143,7 @@ scrollLoop();
 function scrollLoop(){
 if(!scrolling) return;
 
-scrollY+=0.5;
+scrollY+=0.6;
 document.getElementById("grid").style.transform=
 "translateY(-"+scrollY+"px)";
 
@@ -147,11 +152,10 @@ requestAnimationFrame(scrollLoop);
 
 document.addEventListener("click",function(e){
 
-// 如果在沉浸模式中
 if(!document.getElementById("home").classList.contains("hidden")) return;
 
 if(scrolling){
-scrolling=false; // 點擊停止滾動
+scrolling=false;
 }else{
 document.getElementById("home").classList.remove("hidden");
 document.getElementById("grid").classList.add("hidden");
