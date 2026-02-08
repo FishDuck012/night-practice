@@ -2,206 +2,162 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>thatskypiano 0.1</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<title>thatskypiano</title>
 <style>
-:root {
-  --bg-top: #0f1c2e;
-  --bg-bottom: #1a2740;
-  --grid-bg: rgba(255,255,255,0.05);
-  --grid-border: rgba(255,255,255,0.15);
-  --grid-active: rgba(180,220,255,0.8);
+
+body{
+margin:0;
+background:#0b1d35;
+font-family:sans-serif;
+overflow:hidden;
+color:white;
 }
 
-body {
-  margin: 0;
-  background: linear-gradient(to bottom, var(--bg-top), var(--bg-bottom));
-  font-family: sans-serif;
-  color: white;
-  overflow-x: hidden;
+#home{
+padding:30px;
+text-align:center;
 }
 
-#app {
-  max-width: 700px;
-  margin: auto;
-  padding: 20px;
-  text-align: center;
+h1{
+font-weight:300;
+letter-spacing:4px;
 }
 
-h1 {
-  font-weight: 300;
-  letter-spacing: 2px;
-  opacity: 0.8;
+textarea{
+width:80%;
+height:100px;
+border-radius:15px;
+border:none;
+padding:15px;
+font-size:16px;
+margin-top:20px;
+background:rgba(255,255,255,0.1);
+color:white;
 }
 
-textarea {
-  width: 100%;
-  height: 100px;
-  margin: 20px 0;
-  border-radius: 10px;
-  padding: 10px;
-  background: rgba(255,255,255,0.05);
-  color: white;
-  border: none;
-  outline: none;
+button{
+margin:15px;
+padding:12px 25px;
+border-radius:30px;
+border:none;
+background:rgba(255,255,255,0.15);
+color:white;
+font-size:16px;
 }
 
-button {
-  padding: 8px 16px;
-  margin: 5px;
-  border-radius: 20px;
-  border: none;
-  background: rgba(255,255,255,0.1);
-  color: white;
-  cursor: pointer;
+#grid{
+position:absolute;
+top:0;
+left:0;
+width:100%;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(5, 60px);
-  gap: 10px;
-  justify-content: center;
+.row{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:15px;
+margin:20px;
 }
 
-.cell {
-  width: 60px;
-  height: 60px;
-  border-radius: 12px;
-  background: var(--grid-bg);
-  border: 1px solid var(--grid-border);
-  transition: 0.3s;
+.cell{
+width:100%;
+padding-top:100%;
+border-radius:15px;
+background:rgba(255,255,255,0.05);
+border:2px solid rgba(255,255,255,0.2);
+transition:0.2s;
 }
 
-.cell.active {
-  background: var(--grid-active);
-  box-shadow: 0 0 10px rgba(180,220,255,0.5);
+.active{
+background:#88c9ff;
+box-shadow:0 0 20px #88c9ff;
 }
 
-#output {
-  display: flex;
-  flex-direction: column;
-  gap: 60px;
-  padding-bottom: 200px;
+.hidden{
+display:none;
 }
 
-/* 角色區域 */
-#characters {
-  position: fixed;
-  bottom: 20px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  opacity: 0.6;
-  font-size: 24px;
-}
-
-/* 沉浸模式 */
-body.immersive #controls,
-body.immersive textarea,
-body.immersive h1 {
-  display: none;
-}
 </style>
 </head>
-
 <body>
 
-<div id="app">
-  <h1>thatskypiano</h1>
+<div id="home">
+<h1>thatskypiano</h1>
 
-  <div id="controls">
-    <textarea id="input" placeholder="5 6 8&#10;15"></textarea>
-    <br>
-    <button onclick="generate()">Generate</button>
-    <button onclick="toggleImmersive()">Immersive</button>
-    <button onclick="togglePlay()">Play</button>
-  </div>
-
-  <div id="output"></div>
+<textarea id="input">5 6 8
+15</textarea>
+<br>
+<button onclick="generate()">Generate</button>
+<button onclick="enterImmersive()">Immersive</button>
+<button onclick="startScroll()">Play</button>
 </div>
 
-<div id="characters">
-  🦆 ⚫➕⚪
-</div>
+<div id="grid" class="hidden"></div>
 
 <script>
-let playing = false;
-let animationId = null;
 
-function generate() {
-  const input = document.getElementById("input").value.trim();
-  const output = document.getElementById("output");
-  output.innerHTML = "";
+let scrolling=false;
+let scrollY=0;
 
-  if (!input) return;
+function generate(){
+const grid=document.getElementById("grid");
+grid.innerHTML="";
+const lines=document.getElementById("input").value.trim().split("\n");
 
-  const lines = input.split(/\r?\n/);
+lines.forEach(line=>{
+const numbers=line.trim().split(/\s+/);
+const row=document.createElement("div");
+row.className="row";
 
-  lines.forEach(line => {
-    if (!line.trim()) return;
-
-    const numbers = line.trim().split(/\s+/);
-    const grid = document.createElement("div");
-    grid.className = "grid";
-
-    for (let i = 1; i <= 15; i++) {
-      const cell = document.createElement("div");
-      cell.className = "cell";
-
-      if (numbers.includes(i.toString())) {
-        cell.classList.add("active");
-      }
-
-      grid.appendChild(cell);
-    }
-
-    output.appendChild(grid);
-  });
+for(let i=1;i<=15;i++){
+const cell=document.createElement("div");
+cell.className="cell";
+if(numbers.includes(i.toString())){
+cell.classList.add("active");
+}
+row.appendChild(cell);
 }
 
-function toggleImmersive() {
-  document.body.classList.toggle("immersive");
-  window.scrollTo({ top: 0 });
-}
-
-function togglePlay() {
-  if (playing) {
-    stopScroll();
-  } else {
-    startScroll();
-  }
-}
-
-function startScroll() {
-  if (!document.body.classList.contains("immersive")) return;
-
-  playing = true;
-
-  function scrollLoop() {
-    if (!playing) return;
-
-    window.scrollBy(0, 1);
-
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-      stopScroll();
-      return;
-    }
-
-    animationId = requestAnimationFrame(scrollLoop);
-  }
-
-  scrollLoop();
-}
-
-function stopScroll() {
-  playing = false;
-  cancelAnimationFrame(animationId);
-}
-
-document.body.addEventListener("click", function() {
-  if (playing) stopScroll();
+grid.appendChild(row);
 });
+}
+
+function enterImmersive(){
+document.getElementById("home").classList.add("hidden");
+document.getElementById("grid").classList.remove("hidden");
+}
+
+function startScroll(){
+if(scrolling) return;
+scrolling=true;
+scrollLoop();
+}
+
+function scrollLoop(){
+if(!scrolling) return;
+
+scrollY+=0.5;
+document.getElementById("grid").style.transform=
+"translateY(-"+scrollY+"px)";
+
+requestAnimationFrame(scrollLoop);
+}
+
+document.addEventListener("click",function(e){
+
+// 如果在沉浸模式中
+if(!document.getElementById("home").classList.contains("hidden")) return;
+
+if(scrolling){
+scrolling=false; // 點擊停止滾動
+}else{
+document.getElementById("home").classList.remove("hidden");
+document.getElementById("grid").classList.add("hidden");
+scrollY=0;
+document.getElementById("grid").style.transform="translateY(0px)";
+}
+});
+
 </script>
 
 </body>
